@@ -6,9 +6,9 @@ open class HeaderTabPageViewController: UIViewController {
     static var headerTabViewHeight: CGFloat = 50
     static var headerTabItemWidth: CGFloat = 100
     
-    private let pageViewController: UIPageViewController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
+    private lazy var pageViewController: UIPageViewController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
     private var viewControllers: [UIViewController] = []
-    private var tabView: HeaderTabView = HeaderTabView(frame: .zero)
+    private lazy var tabView: HeaderTabView = HeaderTabView(frame: .zero)
     
     public weak var delegate: HeaderTabPageViewControllerDelegate?
     
