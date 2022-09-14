@@ -6,7 +6,7 @@ open class HeaderTabPageViewController: UIViewController {
     static var headerTabViewHeight: CGFloat = 50
     static var headerTabItemWidth: CGFloat = 100
     
-    static func setUp(
+    public static func setUp(
         labelDefaultColor: UIColor? = nil,
         labelSelectedColor: UIColor? = nil,
         headerTabViewHeight: CGFloat?,
