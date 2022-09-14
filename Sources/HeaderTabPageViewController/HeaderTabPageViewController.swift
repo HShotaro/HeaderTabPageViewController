@@ -9,8 +9,8 @@ open class HeaderTabPageViewController: UIViewController {
     public static func setUp(
         labelDefaultColor: UIColor? = nil,
         labelSelectedColor: UIColor? = nil,
-        headerTabViewHeight: CGFloat?,
-        headerTabItemWidth: CGFloat?
+        headerTabViewHeight: CGFloat? = nil,
+        headerTabItemWidth: CGFloat? = nil
     ) {
         if let labelDefaultColor = labelDefaultColor {
             HeaderTabPageViewController.labelDefaultColor = labelDefaultColor
