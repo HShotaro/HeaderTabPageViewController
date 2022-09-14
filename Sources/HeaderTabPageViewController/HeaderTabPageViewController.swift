@@ -6,12 +6,19 @@ open class HeaderTabPageViewController: UIViewController {
     static var headerTabViewHeight: CGFloat = 50
     static var headerTabItemWidth: CGFloat = 100
     
-    public static func setUp(
+    private let pageViewController: UIPageViewController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
+    private var viewControllers: [UIViewController] = []
+    private var tabView: HeaderTabView = HeaderTabView(frame: .zero)
+    
+    public weak var delegate: HeaderTabPageViewControllerDelegate?
+    
+    public init(
         labelDefaultColor: UIColor? = nil,
         labelSelectedColor: UIColor? = nil,
         headerTabViewHeight: CGFloat? = nil,
         headerTabItemWidth: CGFloat? = nil
     ) {
+        super.init(nibName: nil, bundle: nil)
         if let labelDefaultColor = labelDefaultColor {
             HeaderTabPageViewController.labelDefaultColor = labelDefaultColor
         }
@@ -24,16 +31,6 @@ open class HeaderTabPageViewController: UIViewController {
         if let headerTabItemWidth = headerTabItemWidth {
             HeaderTabPageViewController.headerTabItemWidth = headerTabItemWidth
         }
-    }
-    
-    private let pageViewController: UIPageViewController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
-    private var viewControllers: [UIViewController] = []
-    private var tabView: HeaderTabView = HeaderTabView(frame: .zero)
-    
-    public weak var delegate: HeaderTabPageViewControllerDelegate?
-    
-    public init() {
-        super.init(nibName: nil, bundle: nil)
     }
     
     required public init?(coder: NSCoder) {
