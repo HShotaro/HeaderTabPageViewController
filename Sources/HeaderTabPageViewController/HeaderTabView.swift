@@ -9,7 +9,7 @@ import UIKit
 
 public class HeaderTabView: UIView {
     public struct Item {
-        let name: String
+        public let name: String
     }
     
     private var items: [Item] = []
