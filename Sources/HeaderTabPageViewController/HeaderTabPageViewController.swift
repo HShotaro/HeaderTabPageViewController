@@ -1,6 +1,6 @@
 import UIKit
 
-public class HeaderTabPageViewController: UIViewController {
+open class HeaderTabPageViewController: UIViewController {
     static var labelDefaultColor: UIColor = .label
     static var labelSelectedColor: UIColor = .systemRed
     static var headerTabViewHeight: CGFloat = 50
@@ -36,7 +36,7 @@ public class HeaderTabPageViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
-    required init?(coder: NSCoder) {
+    required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
