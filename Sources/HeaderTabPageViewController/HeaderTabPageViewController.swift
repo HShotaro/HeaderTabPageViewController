@@ -18,7 +18,6 @@ open class HeaderTabPageViewController: UIViewController {
         headerTabViewHeight: CGFloat? = nil,
         headerTabItemWidth: CGFloat? = nil
     ) {
-        super.init(nibName: nil, bundle: nil)
         if let labelDefaultColor = labelDefaultColor {
             HeaderTabPageViewController.labelDefaultColor = labelDefaultColor
         }
@@ -31,6 +30,7 @@ open class HeaderTabPageViewController: UIViewController {
         if let headerTabItemWidth = headerTabItemWidth {
             HeaderTabPageViewController.headerTabItemWidth = headerTabItemWidth
         }
+        super.init(nibName: nil, bundle: nil)
     }
     
     required public init?(coder: NSCoder) {
