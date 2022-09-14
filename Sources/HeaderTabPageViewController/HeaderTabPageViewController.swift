@@ -40,7 +40,7 @@ open class HeaderTabPageViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    public override func viewDidLoad() {
+    open override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         view.addSubview(tabView)
@@ -51,7 +51,7 @@ open class HeaderTabPageViewController: UIViewController {
         pageViewController.delegate = self
     }
     
-    public override func viewWillLayoutSubviews() {
+    open override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         let statusBarHeight: CGFloat = view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
         let navigationBarHeight: CGFloat = self.navigationController?.navigationBar.frame.height ?? 0
