@@ -10,6 +10,9 @@ import UIKit
 public class HeaderTabView: UIView {
     public struct Item {
         public let name: String
+        public init(name: String) {
+            self.name = name
+        }
     }
     
     private var items: [Item] = []
