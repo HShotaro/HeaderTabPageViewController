@@ -57,7 +57,7 @@ public class HeaderTabButtonItemView: UIView {
         addSubview(titleLabel)
         addSubview(button)
         
-        self.contentWidth = self.titleLabel.intrinsicContentSize.width + headerTabViewMargin / 2
+        self.contentWidth = self.titleLabel.intrinsicContentSize.width + headerTabViewMargin
     }
     
     required init?(coder: NSCoder) {
