@@ -109,10 +109,13 @@ public class HeaderTabView: UIView {
         }
         scrollViewContentSize = CGSize(width: scrollViewContentWidth, height: headerTabViewHeight)
         self.scrollView.contentSize = scrollViewContentSize
-        self.scrollItemToCenter(animated: false)
         
         layoutIfNeeded()
         setNeedsLayout()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+            self?.scrollItemToCenter(animated: false)
+        }
         
     }
     

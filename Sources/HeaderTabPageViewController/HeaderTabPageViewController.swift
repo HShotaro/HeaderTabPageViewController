@@ -35,7 +35,7 @@ open class HeaderTabPageViewController: UIViewController {
     open override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        tabView = HeaderTabView(frame: .zero,
+        tabView = HeaderTabView(frame: CGRect(origin: .zero, size: CGSize(width: self.view.frame.width, height: headerTabViewHeight)),
                                 labelDefaultColor: labelDefaultColor,
                                 labelSelectedColor: labelSelectedColor,
                                 headerTabViewHeight: headerTabViewHeight,
