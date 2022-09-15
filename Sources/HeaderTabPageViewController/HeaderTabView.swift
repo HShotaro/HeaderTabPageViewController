@@ -24,13 +24,13 @@ public class HeaderTabView: UIView {
     private var scrollViewContentSize: CGSize = .zero
     
     private lazy var indicatorView: UIView = {
-        let v = UIView()
+        let v = UIView(frame: .zero)
         v.backgroundColor = labelSelectedColor
         return v
     }()
     
     private let separatorView: UIView = {
-        let v = UIView()
+        let v = UIView(frame: .zero)
         v.backgroundColor = .systemGray
         return v
     }()
@@ -76,7 +76,7 @@ public class HeaderTabView: UIView {
     }
     
     func setUp(items: [String], initialIndex: Int) {
-        self.subviews.forEach { v in
+        self.scrollView.subviews.forEach { v in
             if v is HeaderTabButtonItemView {
                 v.removeFromSuperview()
             }
@@ -111,6 +111,7 @@ public class HeaderTabView: UIView {
         
         layoutIfNeeded()
         setNeedsLayout()
+        
     }
     
     @objc func didSelect(_ sender: UIButton) {
@@ -146,6 +147,7 @@ public class HeaderTabView: UIView {
     }
     
     private func setButtonViewsFrame() {
+        guard !scrollView.subviews.isEmpty else { return }
         var nextX: CGFloat = 0
         for i in 0 ..< buttonViews.count {
             buttonViews[i].frame = CGRect(x: nextX, y: 0, width: buttonViews[i].contentWidth, height: headerTabViewHeight - indicatorViewHeight)
@@ -154,6 +156,7 @@ public class HeaderTabView: UIView {
     }
     
     private func setIndicatorViewFrame() {
+        guard !scrollView.subviews.isEmpty else { return }
         let buttonLeftX = buttonViews[0..<Int(floor(currentIndicatorIndex))].reduce(0) { result, buttonView in
             return result + buttonView.contentWidth
         }
