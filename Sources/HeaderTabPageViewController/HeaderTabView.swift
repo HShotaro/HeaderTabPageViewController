@@ -133,8 +133,15 @@ public class HeaderTabView: UIView {
     }
     
     private func scrollItemToCenter(animated: Bool) {
-        let newContentOffsetX: CGFloat = indicatorView.frame.minX
-        - max((self.frame.width - indicatorView.frame.width), 0) / 2
+        var newContentOffsetX: CGFloat = indicatorView.frame.minX - max((self.frame.width - indicatorView.frame.width), 0) / 2
+        switch newContentOffsetX {
+        case -self.frame.width..<0:
+            newContentOffsetX = 0
+        case (scrollViewContentSize.width - self.frame.width)..<scrollViewContentSize.width:
+            newContentOffsetX = scrollViewContentSize.width - self.frame.width
+        default:
+            break
+        }
         scrollView.setContentOffset(CGPoint(x: newContentOffsetX, y: 0), animated: animated)
     }
     
