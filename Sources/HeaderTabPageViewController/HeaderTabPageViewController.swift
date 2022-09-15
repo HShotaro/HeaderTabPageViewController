@@ -62,7 +62,7 @@ open class HeaderTabPageViewController: UIViewController {
     }
     
     public func setUp(tabGroups: [(vc: UIViewController, tabItem: String)], selectedIndex: Int = 0) {
-        self.tabView.setUp(items: tabGroups.map { $0.tabItem })
+        self.tabView.setUp(items: tabGroups.map { $0.tabItem }, initialIndex: selectedIndex)
         self.viewControllers = tabGroups.map { $0.vc }
         self.pageViewController.setViewControllers([viewControllers[selectedIndex]], direction: .forward, animated: false)
     }

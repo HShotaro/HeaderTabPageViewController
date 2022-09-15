@@ -75,7 +75,7 @@ public class HeaderTabView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setUp(items: [String], initialIndex: Int = 0) {
+    func setUp(items: [String], initialIndex: Int) {
         self.subviews.forEach { v in
             if v is HeaderTabButtonItemView {
                 v.removeFromSuperview()
