@@ -20,12 +20,13 @@ public class HeaderTabButtonItemView: UIView {
             }
             button.isSelected = isSelected
             titleLabel.textColor = isSelected ? labelSelectedColor : labelDefaultColor
+            titleLabel.font = .systemFont(ofSize: fontSize, weight: isSelected ? .bold : .regular)
         }
     }
     
     private lazy var titleLabel: UILabel = {
         let l = UILabel()
-        l.font = .systemFont(ofSize: 14)
+        l.font = .systemFont(ofSize: fontSize)
         l.textColor = labelDefaultColor
         l.textAlignment = .center
         return l
@@ -36,6 +37,7 @@ public class HeaderTabButtonItemView: UIView {
     private let labelDefaultColor: UIColor
     private let labelSelectedColor: UIColor
     private let headerTabViewMargin: CGFloat
+    private let fontSize: CGFloat
     
     public init(
         title: String,
@@ -43,12 +45,14 @@ public class HeaderTabButtonItemView: UIView {
         tag: Int,
         labelDefaultColor: UIColor,
         labelSelectedColor: UIColor,
-        headerTabViewMargin: CGFloat
+        headerTabViewMargin: CGFloat,
+        fontSize: CGFloat
     ) {
         self.isSelected = isSelected
         self.labelDefaultColor = labelDefaultColor
         self.labelSelectedColor = labelSelectedColor
         self.headerTabViewMargin = headerTabViewMargin
+        self.fontSize = fontSize
         super.init(frame: .zero)
         self.titleLabel.text = title
         self.button.tag = tag

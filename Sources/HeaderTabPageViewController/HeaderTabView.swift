@@ -52,6 +52,7 @@ public class HeaderTabView: UIView {
     private let indicatorViewHeight: CGFloat
     private let headerTabViewMargin: CGFloat
     private let headerTabViewBgColor: UIColor
+    private let fontSize: CGFloat
     
     public init(frame: CGRect,
                 labelDefaultColor: UIColor,
@@ -59,7 +60,8 @@ public class HeaderTabView: UIView {
                 headerTabViewHeight: CGFloat,
                 indicatorViewHeight: CGFloat,
                 headerTabViewMargin: CGFloat,
-                headerTabViewBgColor: UIColor
+                headerTabViewBgColor: UIColor,
+                fontSize: CGFloat
     ) {
         self.labelDefaultColor = labelDefaultColor
         self.labelSelectedColor = labelSelectedColor
@@ -67,6 +69,7 @@ public class HeaderTabView: UIView {
         self.indicatorViewHeight = indicatorViewHeight
         self.headerTabViewMargin = headerTabViewMargin
         self.headerTabViewBgColor = headerTabViewBgColor
+        self.fontSize = fontSize
         super.init(frame: frame)
         backgroundColor = headerTabViewBgColor
         addSubview(separatorView)
@@ -92,7 +95,8 @@ public class HeaderTabView: UIView {
                     tag: index,
                     labelDefaultColor: labelDefaultColor,
                     labelSelectedColor: labelSelectedColor,
-                    headerTabViewMargin: headerTabViewMargin
+                    headerTabViewMargin: headerTabViewMargin,
+                    fontSize: fontSize
                 )
                 return v
             }
