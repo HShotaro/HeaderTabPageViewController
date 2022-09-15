@@ -58,6 +58,7 @@ public class HeaderTabButtonItemView: UIView {
         self.button.tag = tag
         button.isSelected = isSelected
         titleLabel.textColor = isSelected ? labelSelectedColor : labelDefaultColor
+        titleLabel.font = .systemFont(ofSize: fontSize, weight: isSelected ? .bold : .regular)
         addSubview(titleLabel)
         addSubview(button)
         
