@@ -53,12 +53,8 @@ open class HeaderTabPageViewController: UIViewController {
     
     open override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
-        let statusBarHeight: CGFloat = view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
-        let navigationBarHeight: CGFloat = self.navigationController?.navigationBar.frame.height ?? 0
-        let tabViewY = statusBarHeight + navigationBarHeight
-        tabView.frame = CGRect(x: 0, y: tabViewY, width: self.view.frame.width, height: headerTabViewHeight)
-        let pageVCY = tabView.frame.origin.y + tabView.frame.height
-        pageViewController.view.frame = CGRect(x: 0, y: pageVCY, width: view.frame.width, height: self.view.frame.height - pageVCY)
+        tabView.frame = CGRect(x: 0, y: self.view.safeAreaInsets.top, width: self.view.frame.width, height: headerTabViewHeight)
+        pageViewController.view.frame = CGRect(x: 0, y: tabView.frame.maxY, width: view.frame.width, height: self.view.frame.height - tabView.frame.maxY)
     }
     
     public func setUp(tabGroups: [(vc: UIViewController, tabItem: String)], selectedIndex: Int = 0) {
