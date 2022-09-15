@@ -94,14 +94,16 @@ public class HeaderTabView: UIView {
                 return v
             }
         }()
-        setButtonViewsFrame()
-        self.currentIndicatorIndex = CGFloat(initialIndex)
-        setIndicatorViewFrame()
         
         for i in 0 ..< buttonViews.count {
             buttonViews[i].button.addTarget(self, action:  #selector(didSelect(_:)), for: .touchUpInside)
             self.scrollView.addSubview(buttonViews[i])
         }
+        
+        setButtonViewsFrame()
+        self.currentIndicatorIndex = CGFloat(initialIndex)
+        setIndicatorViewFrame()
+        
         let scrollViewContentWidth: CGFloat = buttonViews.reduce(0) { result, buttonView in
             return result + buttonView.contentWidth
         }
