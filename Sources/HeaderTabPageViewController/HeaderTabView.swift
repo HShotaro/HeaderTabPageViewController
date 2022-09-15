@@ -147,7 +147,7 @@ public class HeaderTabView: UIView {
     }
     
     private func setButtonViewsFrame() {
-        guard !scrollView.subviews.isEmpty else { return }
+        guard !scrollView.subviews.filter({ $0 is HeaderTabButtonItemView }).isEmpty else { return }
         var nextX: CGFloat = 0
         for i in 0 ..< buttonViews.count {
             buttonViews[i].frame = CGRect(x: nextX, y: 0, width: buttonViews[i].contentWidth, height: headerTabViewHeight - indicatorViewHeight)
@@ -156,7 +156,7 @@ public class HeaderTabView: UIView {
     }
     
     private func setIndicatorViewFrame() {
-        guard !scrollView.subviews.isEmpty else { return }
+        guard !scrollView.subviews.filter({ $0 is HeaderTabButtonItemView }).isEmpty else { return }
         let buttonLeftX = buttonViews[0..<Int(floor(currentIndicatorIndex))].reduce(0) { result, buttonView in
             return result + buttonView.contentWidth
         }
