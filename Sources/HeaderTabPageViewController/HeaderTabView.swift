@@ -8,98 +8,167 @@
 import UIKit
 
 public class HeaderTabView: UIView {
-    public struct Item {
-        public let name: String
-        public init(name: String) {
-            self.name = name
-        }
-    }
+    private var buttonViews: [HeaderTabButtonItemView] = []
     
-    private var items: [Item] = []
-        
     public weak var delegate: HeaderTabViewDelegate?
-        
-    private let collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        layout.sectionInset = .zero
-        layout.scrollDirection = .horizontal
-        layout.estimatedItemSize = CGSize(width: HeaderTabPageViewController.headerTabItemWidth, height: HeaderTabPageViewController.headerTabViewHeight)
-        layout.itemSize = CGSize(width: HeaderTabPageViewController.headerTabItemWidth, height: HeaderTabPageViewController.headerTabViewHeight)
-        let v = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        v.register(HeaderTabViewCollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
+    
+    private let scrollView: UIScrollView = {
+        let v = UIScrollView()
         v.showsHorizontalScrollIndicator = false
+        v.showsVerticalScrollIndicator = false
         v.backgroundColor = .clear
+        v.isScrollEnabled = true
         return v
     }()
-        
-        private let indicatorView: UIView = {
-            let v = UIView()
-            v.backgroundColor = HeaderTabPageViewController.labelSelectedColor
-            v.frame = CGRect(x: 0, y: HeaderTabPageViewController.headerTabViewHeight - 2, width: HeaderTabPageViewController.headerTabItemWidth, height: 2)
-            return v
-        }()
-        
-        private let separatorView: UIView = {
-            let v = UIView()
-            v.backgroundColor = .systemGray
-            return v
-        }()
-        
-        override init(frame: CGRect) {
-            super.init(frame: frame)
-            backgroundColor = .systemBackground
-            addSubview(separatorView)
-            addSubview(collectionView)
-            collectionView.addSubview(indicatorView)
-            collectionView.dataSource = self
-            collectionView.delegate = self
-        }
-        
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-        
-        func setUp(items: [Item]) {
-            self.items = items
-            DispatchQueue.main.async { [weak self] in
-                self?.collectionView.reloadData()
-                self?.collectionView.selectItem(at: IndexPath(row: 0, section: 0), animated: false, scrollPosition: .centeredHorizontally)
+    
+    private var scrollViewContentSize: CGSize = .zero
+    
+    private lazy var indicatorView: UIView = {
+        let v = UIView()
+        v.backgroundColor = labelSelectedColor
+        return v
+    }()
+    
+    private let separatorView: UIView = {
+        let v = UIView()
+        v.backgroundColor = .systemGray
+        return v
+    }()
+    
+    private var currentIndicatorIndex: CGFloat = 0 {
+        didSet {
+            guard Int(oldValue.rounded()) != Int(currentIndicatorIndex.rounded()) else {
+                return
+            }
+            for i in 0 ..< buttonViews.count {
+                buttonViews[i].isSelected = Int(currentIndicatorIndex.rounded()) == buttonViews[i].button.tag
             }
         }
-        
-        func move(to index: Int) {
-            let indexPath = IndexPath(row: index, section: 0)
-            self.collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .centeredHorizontally)
-            UIView.animate(withDuration: 0.1) {
-                self.indicatorView.frame = CGRect(x: HeaderTabPageViewController.headerTabItemWidth * CGFloat(index), y: HeaderTabPageViewController.headerTabViewHeight - 2, width: HeaderTabPageViewController.headerTabItemWidth, height: 2)
-            }
-            self.indicatorView.setNeedsLayout()
-            self.indicatorView.layoutIfNeeded()
-        }
-        
-        public override func layoutSubviews() {
-            super.layoutSubviews()
-            collectionView.frame = bounds
-            separatorView.frame = CGRect(x: 0, y: HeaderTabPageViewController.headerTabViewHeight - 1, width: bounds.width, height: 1)
-        }
-}
-
-extension HeaderTabView: UICollectionViewDataSource {
-    public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return items.count
     }
     
-    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! HeaderTabViewCollectionViewCell
-        cell.configureCell(text: items[indexPath.row].name)
-        return cell
+    private let labelDefaultColor: UIColor
+    private let labelSelectedColor: UIColor
+    private let headerTabViewHeight: CGFloat
+    private let indicatorViewHeight: CGFloat
+    private let headerTabViewMargin: CGFloat
+    
+    public init(frame: CGRect,
+                labelDefaultColor: UIColor,
+                labelSelectedColor: UIColor,
+                headerTabViewHeight: CGFloat,
+                indicatorViewHeight: CGFloat,
+                headerTabViewMargin: CGFloat
+    ) {
+        self.labelDefaultColor = labelDefaultColor
+        self.labelSelectedColor = labelSelectedColor
+        self.headerTabViewHeight = headerTabViewHeight
+        self.indicatorViewHeight = indicatorViewHeight
+        self.headerTabViewMargin = headerTabViewMargin
+        super.init(frame: frame)
+        backgroundColor = .systemBackground
+        addSubview(separatorView)
+        addSubview(scrollView)
+        scrollView.addSubview(indicatorView)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func setUp(items: [String], initialIndex: Int = 0) {
+        self.subviews.forEach { v in
+            if v is HeaderTabButtonItemView {
+                v.removeFromSuperview()
+            }
+        }
+        self.buttonViews = {
+            return items.enumerated().map { (index, title) in
+                let v = HeaderTabButtonItemView(
+                    title: title,
+                    isSelected: index == initialIndex,
+                    tag: index,
+                    labelDefaultColor: labelDefaultColor,
+                    labelSelectedColor: labelSelectedColor,
+                    headerTabViewMargin: headerTabViewMargin
+                )
+                return v
+            }
+        }()
+        setButtonViewsFrame()
+        self.currentIndicatorIndex = CGFloat(initialIndex)
+        setIndicatorViewFrame()
+        
+        for i in 0 ..< buttonViews.count {
+            buttonViews[i].button.addTarget(self, action:  #selector(didSelect(_:)), for: .touchUpInside)
+            self.scrollView.addSubview(buttonViews[i])
+        }
+        let scrollViewContentWidth: CGFloat = buttonViews.reduce(0) { result, buttonView in
+            return result + buttonView.contentWidth
+        }
+        scrollViewContentSize = CGSize(width: scrollViewContentWidth, height: headerTabViewHeight)
+        self.scrollView.contentSize = scrollViewContentSize
+        self.scrollItemToCenter(animated: false)
+        
+        layoutIfNeeded()
+        setNeedsLayout()
+    }
+    
+    @objc func didSelect(_ sender: UIButton) {
+        self.delegate?.itemSelected(index: sender.tag)
+    }
+    
+    
+    public func move(percent: CGFloat, completion: (() -> ())? = nil) {
+        self.currentIndicatorIndex = max(0.0, min(1.0, percent)) * CGFloat(buttonViews.count - 1)
+        UIView.animate(withDuration: 0.1) { [weak self] in
+            self?.setIndicatorViewFrame()
+            self?.indicatorView.setNeedsLayout()
+            self?.indicatorView.layoutIfNeeded()
+        } completion: { [weak self] finished in
+            if finished {
+                self?.scrollItemToCenter(animated: true)
+                completion?()
+            }
+        }
+    }
+    
+    private func scrollItemToCenter(animated: Bool) {
+        let newContentOffsetX: CGFloat = indicatorView.frame.minX
+        - max((self.frame.width - indicatorView.frame.width), 0) / 2
+        scrollView.setContentOffset(CGPoint(x: newContentOffsetX, y: 0), animated: animated)
+    }
+    
+    private func setButtonViewsFrame() {
+        var nextX: CGFloat = 0
+        for i in 0 ..< buttonViews.count {
+            buttonViews[i].frame = CGRect(x: nextX, y: 0, width: buttonViews[i].contentWidth, height: headerTabViewHeight - indicatorViewHeight)
+            nextX += buttonViews[i].contentWidth
+        }
+    }
+    
+    private func setIndicatorViewFrame() {
+        let buttonLeftX = buttonViews[0..<Int(floor(currentIndicatorIndex))].reduce(0) { result, buttonView in
+            return result + buttonView.contentWidth
+        }
+        let buttonLeft = buttonViews[Int(floor(currentIndicatorIndex))]
+        let ratio: CGFloat = currentIndicatorIndex - floor(currentIndicatorIndex)
+        let indicatorWidth: CGFloat = {
+            guard ratio > 0.01 else {
+                return buttonViews[Int(floor(currentIndicatorIndex))].contentWidth
+            }
+            return ratio * buttonViews[Int(ceil(currentIndicatorIndex))].contentWidth + (1.0 - ratio) * buttonViews[Int(floor(currentIndicatorIndex))].contentWidth
+        }()
+        let indicatorX: CGFloat = buttonLeftX + buttonLeft.contentWidth * ratio
+        
+        indicatorView.frame = CGRect(x: indicatorX, y: headerTabViewHeight - indicatorViewHeight, width: indicatorWidth, height: indicatorViewHeight)
+    }
+    
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        scrollView.frame = bounds
+        separatorView.frame = CGRect(x: 0, y: headerTabViewHeight - 1, width: bounds.width, height: 1)
+        setButtonViewsFrame()
+        setIndicatorViewFrame()
     }
 }
 
-extension HeaderTabView: UICollectionViewDelegate {
-    public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        delegate?.itemSelected(index: indexPath.row)
-    }
-}

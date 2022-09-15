@@ -1,35 +1,30 @@
 import UIKit
 
 open class HeaderTabPageViewController: UIViewController {
-    static var labelDefaultColor: UIColor = .label
-    static var labelSelectedColor: UIColor = .systemRed
-    static var headerTabViewHeight: CGFloat = 50
-    static var headerTabItemWidth: CGFloat = 100
+    private let labelDefaultColor: UIColor
+    private let labelSelectedColor: UIColor
+    private let headerTabViewHeight: CGFloat
+    private let indicatorViewHeight: CGFloat
+    private let headerTabViewMargin: CGFloat
     
     private lazy var pageViewController: UIPageViewController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
     private var viewControllers: [UIViewController] = []
-    private lazy var tabView: HeaderTabView = HeaderTabView(frame: .zero)
+    private var tabView: HeaderTabView!
     
     public weak var delegate: HeaderTabPageViewControllerDelegate?
     
     public init(
-        labelDefaultColor: UIColor? = nil,
-        labelSelectedColor: UIColor? = nil,
-        headerTabViewHeight: CGFloat? = nil,
-        headerTabItemWidth: CGFloat? = nil
+        labelDefaultColor: UIColor = .label,
+        labelSelectedColor: UIColor = .systemRed,
+        headerTabViewHeight: CGFloat = 50,
+        indicatorViewHeight: CGFloat = 2,
+        headerTabViewMargin: CGFloat = 20
     ) {
-        if let labelDefaultColor = labelDefaultColor {
-            HeaderTabPageViewController.labelDefaultColor = labelDefaultColor
-        }
-        if let labelSelectedColor = labelSelectedColor {
-            HeaderTabPageViewController.labelSelectedColor = labelSelectedColor
-        }
-        if let headerTabViewHeight = headerTabViewHeight {
-            HeaderTabPageViewController.headerTabViewHeight = headerTabViewHeight
-        }
-        if let headerTabItemWidth = headerTabItemWidth {
-            HeaderTabPageViewController.headerTabItemWidth = headerTabItemWidth
-        }
+        self.labelDefaultColor = labelDefaultColor
+        self.labelSelectedColor = labelSelectedColor
+        self.headerTabViewHeight = headerTabViewHeight
+        self.indicatorViewHeight = indicatorViewHeight
+        self.headerTabViewMargin = headerTabViewMargin
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -40,12 +35,20 @@ open class HeaderTabPageViewController: UIViewController {
     open override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
+        tabView = HeaderTabView(frame: .zero,
+                                labelDefaultColor: labelDefaultColor,
+                                labelSelectedColor: labelSelectedColor,
+                                headerTabViewHeight: headerTabViewHeight,
+                                indicatorViewHeight: indicatorViewHeight,
+                                headerTabViewMargin: headerTabViewMargin
+        )
         view.addSubview(tabView)
         view.addSubview(pageViewController.view)
         
         self.tabView.delegate = self
         pageViewController.dataSource = self
         pageViewController.delegate = self
+        pageViewController.view.subviews.compactMap { $0 as? UIScrollView }.first?.delegate = self
     }
     
     open override func viewWillLayoutSubviews() {
@@ -53,12 +56,12 @@ open class HeaderTabPageViewController: UIViewController {
         let statusBarHeight: CGFloat = view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
         let navigationBarHeight: CGFloat = self.navigationController?.navigationBar.frame.height ?? 0
         let tabViewY = statusBarHeight + navigationBarHeight
-        tabView.frame = CGRect(x: 0, y: tabViewY, width: self.view.frame.width, height: HeaderTabPageViewController.headerTabViewHeight)
+        tabView.frame = CGRect(x: 0, y: tabViewY, width: self.view.frame.width, height: headerTabViewHeight)
         let pageVCY = tabView.frame.origin.y + tabView.frame.height
         pageViewController.view.frame = CGRect(x: 0, y: pageVCY, width: view.frame.width, height: self.view.frame.height - pageVCY)
     }
     
-    public func setUp(tabGroups: [(vc: UIViewController, tabItem: HeaderTabView.Item)], selectedIndex: Int = 0) {
+    public func setUp(tabGroups: [(vc: UIViewController, tabItem: String)], selectedIndex: Int = 0) {
         self.tabView.setUp(items: tabGroups.map { $0.tabItem })
         self.viewControllers = tabGroups.map { $0.vc }
         self.pageViewController.setViewControllers([viewControllers[selectedIndex]], direction: .forward, animated: false)
@@ -71,6 +74,9 @@ open class HeaderTabPageViewController: UIViewController {
         else { return nil }
         return currentIndex
     }
+    
+    private var initialDragModel: (pageIndex: Int, scrollViewOffSetX: CGFloat)?
+    private var isMovingBySelecteingTabView = false
 }
 
 extension HeaderTabPageViewController: UIPageViewControllerDataSource {
@@ -95,12 +101,33 @@ extension HeaderTabPageViewController: UIPageViewControllerDelegate {
         self.tabView.isUserInteractionEnabled = false
     }
     public func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
-        if let newVC = pageViewController.viewControllers?.first,
+        self.initialDragModel = nil
+        if finished,
+           let newVC = pageViewController.viewControllers?.first,
            let newIndex =  self.viewControllers.firstIndex(of: newVC) {
-            self.tabView.move(to: newIndex)
+            self.tabView.move(percent: CGFloat(newIndex) / max(1, CGFloat(viewControllers.count - 1)))
             self.delegate?.didChangeVisuableViewController(to: newVC)
         }
         self.tabView.isUserInteractionEnabled = true
+    }
+}
+
+extension HeaderTabPageViewController: UIScrollViewDelegate {
+    public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        guard let pageIndex =  self.currentChildVCIndex() else { return }
+        self.initialDragModel = (pageIndex: pageIndex, scrollViewOffSetX: scrollView.contentOffset.x)
+    }
+       
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if isMovingBySelecteingTabView {
+            self.initialDragModel = nil
+        }
+        guard let initialDragModel = self.initialDragModel else { return }
+        let draggingX = scrollView.contentOffset.x - initialDragModel.scrollViewOffSetX
+        let pageWidth = scrollView.frame.width
+        let contentOffsetX = CGFloat(initialDragModel.pageIndex) * pageWidth + draggingX
+        let percent =  contentOffsetX / ( pageWidth * CGFloat(viewControllers.count) - pageWidth)
+        self.tabView.move(percent: percent)
     }
 }
 
@@ -111,7 +138,10 @@ extension HeaderTabPageViewController: HeaderTabViewDelegate {
         else { return }
         delegate?.didSelectTab(index: index)
         self.view.isUserInteractionEnabled = false
-        self.tabView.move(to: index)
+        self.isMovingBySelecteingTabView = true
+        self.tabView.move(percent: CGFloat(index) / max(1, CGFloat(viewControllers.count - 1))) { [weak self] in
+            self?.isMovingBySelecteingTabView = false
+        }
         let newVC = self.viewControllers[index]
         self.pageViewController.setViewControllers([newVC],
                                                    direction: currentIndex < index ? .forward : .reverse,
@@ -123,3 +153,4 @@ extension HeaderTabPageViewController: HeaderTabViewDelegate {
         )
     }
 }
+
