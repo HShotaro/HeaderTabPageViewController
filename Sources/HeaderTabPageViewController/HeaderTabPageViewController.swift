@@ -6,6 +6,7 @@ open class HeaderTabPageViewController: UIViewController {
     private let headerTabViewHeight: CGFloat
     private let indicatorViewHeight: CGFloat
     private let headerTabViewMargin: CGFloat
+    private let headerTabViewBgColor: UIColor
     
     private lazy var pageViewController: UIPageViewController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
     private var viewControllers: [UIViewController] = []
@@ -18,13 +19,15 @@ open class HeaderTabPageViewController: UIViewController {
         labelSelectedColor: UIColor = .systemRed,
         headerTabViewHeight: CGFloat = 50,
         indicatorViewHeight: CGFloat = 2,
-        headerTabViewMargin: CGFloat = 20
+        headerTabViewMargin: CGFloat = 20,
+        headerTabViewBgColor: UIColor = .systemBackground
     ) {
         self.labelDefaultColor = labelDefaultColor
         self.labelSelectedColor = labelSelectedColor
         self.headerTabViewHeight = headerTabViewHeight
         self.indicatorViewHeight = indicatorViewHeight
         self.headerTabViewMargin = headerTabViewMargin
+        self.headerTabViewBgColor = headerTabViewBgColor
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -40,7 +43,8 @@ open class HeaderTabPageViewController: UIViewController {
                                 labelSelectedColor: labelSelectedColor,
                                 headerTabViewHeight: headerTabViewHeight,
                                 indicatorViewHeight: indicatorViewHeight,
-                                headerTabViewMargin: headerTabViewMargin
+                                headerTabViewMargin: headerTabViewMargin,
+                                headerTabViewBgColor: headerTabViewBgColor
         )
         view.addSubview(tabView)
         view.addSubview(pageViewController.view)

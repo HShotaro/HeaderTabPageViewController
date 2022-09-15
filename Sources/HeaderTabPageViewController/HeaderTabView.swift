@@ -51,21 +51,24 @@ public class HeaderTabView: UIView {
     private let headerTabViewHeight: CGFloat
     private let indicatorViewHeight: CGFloat
     private let headerTabViewMargin: CGFloat
+    private let headerTabViewBgColor: UIColor
     
     public init(frame: CGRect,
                 labelDefaultColor: UIColor,
                 labelSelectedColor: UIColor,
                 headerTabViewHeight: CGFloat,
                 indicatorViewHeight: CGFloat,
-                headerTabViewMargin: CGFloat
+                headerTabViewMargin: CGFloat,
+                headerTabViewBgColor: UIColor
     ) {
         self.labelDefaultColor = labelDefaultColor
         self.labelSelectedColor = labelSelectedColor
         self.headerTabViewHeight = headerTabViewHeight
         self.indicatorViewHeight = indicatorViewHeight
         self.headerTabViewMargin = headerTabViewMargin
+        self.headerTabViewBgColor = headerTabViewBgColor
         super.init(frame: frame)
-        backgroundColor = .systemBackground
+        backgroundColor = headerTabViewBgColor
         addSubview(separatorView)
         addSubview(scrollView)
         scrollView.addSubview(indicatorView)
