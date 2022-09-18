@@ -80,7 +80,7 @@ open class HeaderTabPageViewController: UIViewController {
     }
     
     private var initialDragModel: (pageIndex: Int, scrollViewOffSetX: CGFloat)?
-    private var isMovingBySelecteingTabView = false
+    private var isPageVCMovingBySelecteingTab = false
 }
 
 extension HeaderTabPageViewController: UIPageViewControllerDataSource {
@@ -123,7 +123,7 @@ extension HeaderTabPageViewController: UIScrollViewDelegate {
     }
        
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if isMovingBySelecteingTabView {
+        if isPageVCMovingBySelecteingTab {
             self.initialDragModel = nil
         }
         guard let initialDragModel = self.initialDragModel else { return }
@@ -131,6 +131,11 @@ extension HeaderTabPageViewController: UIScrollViewDelegate {
         let pageWidth = scrollView.frame.width
         let contentOffsetX = CGFloat(initialDragModel.pageIndex) * pageWidth + draggingX
         let percent =  contentOffsetX / ( pageWidth * CGFloat(viewControllers.count) - pageWidth)
+        if percent < 0.0 || percent > 1.0 {
+            self.initialDragModel = nil
+            self.tabView.move(percent: floor(percent))
+            return
+        }
         self.tabView.move(percent: percent)
     }
 }
@@ -142,9 +147,9 @@ extension HeaderTabPageViewController: HeaderTabViewDelegate {
         else { return }
         delegate?.didSelectTab(index: index)
         self.view.isUserInteractionEnabled = false
-        self.isMovingBySelecteingTabView = true
+        self.isPageVCMovingBySelecteingTab = true
         self.tabView.move(percent: CGFloat(index) / max(1, CGFloat(viewControllers.count - 1))) { [weak self] in
-            self?.isMovingBySelecteingTabView = false
+            self?.isPageVCMovingBySelecteingTab = false
         }
         let newVC = self.viewControllers[index]
         self.pageViewController.setViewControllers([newVC],
