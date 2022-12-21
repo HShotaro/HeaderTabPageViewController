@@ -101,18 +101,14 @@ extension HeaderTabPageViewController: UIPageViewControllerDataSource {
 }
 
 extension HeaderTabPageViewController: UIPageViewControllerDelegate {
-    public func pageViewController(_ pageViewController: UIPageViewController, willTransitionTo pendingViewControllers: [UIViewController]) {
-        self.tabView.isUserInteractionEnabled = false
-    }
     public func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
         self.initialDragModel = nil
-        if finished,
+        if completed,
            let newVC = pageViewController.viewControllers?.first,
            let newIndex =  self.viewControllers.firstIndex(of: newVC) {
             self.tabView.move(percent: CGFloat(newIndex) / max(1, CGFloat(viewControllers.count - 1)))
             self.delegate?.didChangeVisuableViewController(to: newVC)
         }
-        self.tabView.isUserInteractionEnabled = true
     }
 }
 
@@ -120,6 +116,11 @@ extension HeaderTabPageViewController: UIScrollViewDelegate {
     public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         guard let pageIndex =  self.currentChildVCIndex() else { return }
         self.initialDragModel = (pageIndex: pageIndex, scrollViewOffSetX: scrollView.contentOffset.x)
+        self.tabView.isUserInteractionEnabled = false
+    }
+    
+    public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        self.tabView.isUserInteractionEnabled = true
     }
        
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {

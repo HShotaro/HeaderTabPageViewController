@@ -139,7 +139,9 @@ public class HeaderTabView: UIView {
             self?.indicatorView.layoutIfNeeded()
         } completion: { [weak self] finished in
             if finished {
-                self?.scrollItemToCenter(animated: true)
+                if (self?.frame.width ?? UIScreen.main.bounds.width) < (self?.buttonViews.last?.frame.maxX ?? 0) {
+                    self?.scrollItemToCenter(animated: true)
+                }
                 completion?()
             }
         }
