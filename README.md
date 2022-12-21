@@ -9,6 +9,8 @@
 <tr>
 <td> 
 <code>
+
+```
 import UIKit
 import HeaderTabPageViewController
 
@@ -38,6 +40,8 @@ class ViewController: UIViewController {
         ])
     }
 }
+```
+
 </code>
 </td>
 <td>
