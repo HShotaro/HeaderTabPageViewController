@@ -10,16 +10,15 @@ open class HeaderTabPageViewController: UIViewController {
     private let fontSize: CGFloat
     
     private lazy var pageViewController: UIPageViewController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
-    private var viewControllers: [UIViewController] = []
     private var tabView: HeaderTabView!
 
-    private var currentVisuableViewController: UIViewController? {
+    private var visibleVCForDelegateEvent: UIViewController? {
         didSet {
-            guard let currentVisuableViewController = currentVisuableViewController,
-                  currentVisuableViewController != oldValue else {
+            guard let visibleVCForDelegateEvent = visibleVCForDelegateEvent,
+                  visibleVCForDelegateEvent != oldValue else {
                 return
             }
-            delegate?.didChangeVisuableViewController(to: currentVisuableViewController)
+            delegate?.didChangeVisuableViewController(to: visibleVCForDelegateEvent)
         }
     }
     
@@ -99,7 +98,7 @@ open class HeaderTabPageViewController: UIViewController {
                                                    animated: true,
                                                    completion: { [weak self] _ in
             self?.view.isUserInteractionEnabled = true
-            self?.currentVisuableViewController = newVC
+            self?.visibleVCForDelegateEvent = newVC
         }
         )
     }
@@ -109,6 +108,7 @@ open class HeaderTabPageViewController: UIViewController {
 
 
     // MARK: Public
+    public var viewControllers: [UIViewController] = []
     public func setUp(tabGroups: [(vc: UIViewController, tabItem: String)], selectedIndex: Int = 0) {
         self.tabView.setUp(items: tabGroups.map { $0.tabItem }, initialIndex: selectedIndex)
         self.viewControllers = tabGroups.map { $0.vc }
@@ -152,7 +152,7 @@ extension HeaderTabPageViewController: UIPageViewControllerDelegate {
            let newVC = pageViewController.viewControllers?.first,
            let newIndex =  self.viewControllers.firstIndex(of: newVC) {
             self.tabView.move(percent: CGFloat(newIndex) / max(1, CGFloat(viewControllers.count - 1)))
-            self.currentVisuableViewController = newVC
+            self.visibleVCForDelegateEvent = newVC
         }
     }
 }
