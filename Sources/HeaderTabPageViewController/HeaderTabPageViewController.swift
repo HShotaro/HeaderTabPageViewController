@@ -12,6 +12,16 @@ open class HeaderTabPageViewController: UIViewController {
     private lazy var pageViewController: UIPageViewController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
     private var viewControllers: [UIViewController] = []
     private var tabView: HeaderTabView!
+
+    private var currentVisuableViewController: UIViewController? {
+        didSet {
+            guard let currentVisuableViewController = currentVisuableViewController,
+                  currentVisuableViewController != oldValue else {
+                return
+            }
+            delegate?.didChangeVisuableViewController(to: currentVisuableViewController)
+        }
+    }
     
     public weak var delegate: HeaderTabPageViewControllerDelegate?
     
@@ -65,12 +75,6 @@ open class HeaderTabPageViewController: UIViewController {
         pageViewController.view.frame = CGRect(x: 0, y: tabView.frame.maxY, width: view.frame.width, height: self.view.frame.height - tabView.frame.maxY)
     }
     
-    public func setUp(tabGroups: [(vc: UIViewController, tabItem: String)], selectedIndex: Int = 0) {
-        self.tabView.setUp(items: tabGroups.map { $0.tabItem }, initialIndex: selectedIndex)
-        self.viewControllers = tabGroups.map { $0.vc }
-        self.pageViewController.setViewControllers([viewControllers[selectedIndex]], direction: .forward, animated: false)
-    }
-    
     private func currentChildVCIndex() -> Int? {
         guard
             let currentVC = self.pageViewController.viewControllers?.first,
@@ -78,9 +82,50 @@ open class HeaderTabPageViewController: UIViewController {
         else { return nil }
         return currentIndex
     }
+
+    private func setVisuableViewController(index: Int) {
+        guard let currentIndex =  self.currentChildVCIndex(),
+              currentIndex != index
+        else { return }
+        delegate?.didSelectTab(index: index)
+        self.view.isUserInteractionEnabled = false
+        self.isPageVCMovingBySelecteingTab = true
+        self.tabView.move(percent: CGFloat(index) / max(1, CGFloat(viewControllers.count - 1))) { [weak self] in
+            self?.isPageVCMovingBySelecteingTab = false
+        }
+        let newVC = self.viewControllers[index]
+        self.pageViewController.setViewControllers([newVC],
+                                                   direction: currentIndex < index ? .forward : .reverse,
+                                                   animated: true,
+                                                   completion: { [weak self] _ in
+            self?.view.isUserInteractionEnabled = true
+            self?.currentVisuableViewController = newVC
+        }
+        )
+    }
     
     private var initialDragModel: (pageIndex: Int, scrollViewOffSetX: CGFloat)?
     private var isPageVCMovingBySelecteingTab = false
+
+
+    // MARK: Public
+    public func setUp(tabGroups: [(vc: UIViewController, tabItem: String)], selectedIndex: Int = 0) {
+        self.tabView.setUp(items: tabGroups.map { $0.tabItem }, initialIndex: selectedIndex)
+        self.viewControllers = tabGroups.map { $0.vc }
+        self.pageViewController.setViewControllers([viewControllers[selectedIndex]], direction: .forward, animated: false)
+    }
+
+    public var currentViewController: UIViewController? {
+        pageViewController.viewControllers?.first
+    }
+
+    public var currentIndex: Int? {
+        currentChildVCIndex()
+    }
+
+    public func move(to index: Int) {
+        self.setVisuableViewController(index: index)
+    }
 }
 
 extension HeaderTabPageViewController: UIPageViewControllerDataSource {
@@ -107,7 +152,7 @@ extension HeaderTabPageViewController: UIPageViewControllerDelegate {
            let newVC = pageViewController.viewControllers?.first,
            let newIndex =  self.viewControllers.firstIndex(of: newVC) {
             self.tabView.move(percent: CGFloat(newIndex) / max(1, CGFloat(viewControllers.count - 1)))
-            self.delegate?.didChangeVisuableViewController(to: newVC)
+            self.currentVisuableViewController = newVC
         }
     }
 }
@@ -122,7 +167,7 @@ extension HeaderTabPageViewController: UIScrollViewDelegate {
     public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         self.tabView.isUserInteractionEnabled = true
     }
-       
+
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if isPageVCMovingBySelecteingTab {
             self.initialDragModel = nil
@@ -143,24 +188,7 @@ extension HeaderTabPageViewController: UIScrollViewDelegate {
 
 extension HeaderTabPageViewController: HeaderTabViewDelegate {
     public func itemSelected(index: Int) {
-        guard let currentIndex =  self.currentChildVCIndex(),
-              currentIndex != index
-        else { return }
-        delegate?.didSelectTab(index: index)
-        self.view.isUserInteractionEnabled = false
-        self.isPageVCMovingBySelecteingTab = true
-        self.tabView.move(percent: CGFloat(index) / max(1, CGFloat(viewControllers.count - 1))) { [weak self] in
-            self?.isPageVCMovingBySelecteingTab = false
-        }
-        let newVC = self.viewControllers[index]
-        self.pageViewController.setViewControllers([newVC],
-                                                   direction: currentIndex < index ? .forward : .reverse,
-                                                   animated: true,
-                                                   completion: { [weak self] _ in
-            self?.view.isUserInteractionEnabled = true
-            self?.delegate?.didChangeVisuableViewController(to: newVC)
-        }
-        )
+        self.setVisuableViewController(index: index)
     }
 }
 
