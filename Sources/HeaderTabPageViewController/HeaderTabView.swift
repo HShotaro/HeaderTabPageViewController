@@ -123,13 +123,11 @@ public class HeaderTabView: UIView {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
             self?.scrollItemToCenter(animated: false)
         }
-        
     }
     
     @objc func didSelect(_ sender: UIButton) {
         self.delegate?.itemSelected(index: sender.tag)
     }
-    
     
     public func move(percent: CGFloat, completion: (() -> ())? = nil) {
         self.currentIndicatorIndex = max(0.0, min(1.0, percent)) * CGFloat(buttonViews.count - 1)
@@ -139,15 +137,16 @@ public class HeaderTabView: UIView {
             self?.indicatorView.layoutIfNeeded()
         } completion: { [weak self] finished in
             if finished {
-                if (self?.frame.width ?? UIScreen.main.bounds.width) < (self?.buttonViews.last?.frame.maxX ?? 0) {
-                    self?.scrollItemToCenter(animated: true)
-                }
+                self?.scrollItemToCenter(animated: true)
                 completion?()
             }
         }
     }
     
     private func scrollItemToCenter(animated: Bool) {
+        guard self.frame.width < (buttonViews.last?.frame.maxX ?? 0) else {
+            return
+        }
         var newContentOffsetX: CGFloat = indicatorView.frame.minX - max((self.frame.width - indicatorView.frame.width), 0) / 2
         switch newContentOffsetX {
         case -self.frame.width..<0:
