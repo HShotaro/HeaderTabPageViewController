@@ -1,5 +1,6 @@
 import UIKit
 
+/// subclass of UIViewControoler with pageViewController and selectable tabs which can change the current page.
 open class HeaderTabPageViewController: UIViewController {
     private let labelDefaultColor: UIColor
     private let labelSelectedColor: UIColor
@@ -22,8 +23,16 @@ open class HeaderTabPageViewController: UIViewController {
         }
     }
     
-    public weak var delegate: HeaderTabPageViewControllerDelegate?
-    
+    internal weak var delegate: HeaderTabPageViewControllerDelegate?
+
+    /// - Parameters:
+    ///   - labelDefaultColor: The color which is used when isSelcted status of tabItemView equal false
+    ///   - labelSelectedColor:  The color which is used when isSelcted status of tabItemView equal true
+    ///   - headerTabViewHeight:  The height of tab view
+    ///   - indicatorViewHeight:  The height of indicator
+    ///   - headerTabViewMargin:  The margin between a tab item view and net tab item view
+    ///   - headerTabViewBgColor: The background color of tab view
+    ///   - fontSize: the font size of title
     public init(
         labelDefaultColor: UIColor = .label,
         labelSelectedColor: UIColor = .systemRed,
@@ -108,21 +117,31 @@ open class HeaderTabPageViewController: UIViewController {
 
 
     // MARK: Public
+    /// viewControllers which pageViewController contains
     public var viewControllers: [UIViewController] = []
+
+    /// set the list of viewController and tab title.
+    /// then display viewController which matches the selectedIndex
+    /// - Parameters:
+    ///   - tabGroups: tuple of viewController and tab title of corresponding viewController
+    ///   - selectedIndex: the index of first visible viewController
     public func setUp(tabGroups: [(vc: UIViewController, tabItem: String)], selectedIndex: Int = 0) {
         self.tabView.setUp(items: tabGroups.map { $0.tabItem }, initialIndex: selectedIndex)
         self.viewControllers = tabGroups.map { $0.vc }
         self.pageViewController.setViewControllers([viewControllers[selectedIndex]], direction: .forward, animated: false)
     }
 
+    /// viewController which is displayed
     public var currentViewController: UIViewController? {
         pageViewController.viewControllers?.first
     }
-
+    /// the index of viewController which is displayed
     public var currentIndex: Int? {
         currentChildVCIndex()
     }
-
+    /// move to viewController which matches the specified index
+    /// - Parameters:
+    ///   - index: index matching viewController which will display 
     public func move(to index: Int) {
         self.setVisuableViewController(index: index)
     }

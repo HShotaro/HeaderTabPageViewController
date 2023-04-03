@@ -7,13 +7,13 @@
 
 import UIKit
 
-public class HeaderTabButtonItemView: UIView {
-    public let button: UIButton = {
+internal class HeaderTabButtonItemView: UIView {
+    internal let button: UIButton = {
         let b = UIButton()
         b.backgroundColor = .clear
         return b
     }()
-    public var isSelected: Bool {
+    internal var isSelected: Bool {
         didSet {
             guard (isSelected != oldValue) else {
                 return
@@ -32,14 +32,14 @@ public class HeaderTabButtonItemView: UIView {
         return l
     }()
     
-    public var contentWidth: CGFloat!
+    internal var contentWidth: CGFloat!
     
     private let labelDefaultColor: UIColor
     private let labelSelectedColor: UIColor
     private let headerTabViewMargin: CGFloat
     private let fontSize: CGFloat
-    
-    public init(
+
+    internal init(
         title: String,
         isSelected: Bool,
         tag: Int,
@@ -69,7 +69,7 @@ public class HeaderTabButtonItemView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    public override func layoutSubviews() {
+    internal override func layoutSubviews() {
         super.layoutSubviews()
         button.frame = self.bounds
         titleLabel.frame = self.bounds

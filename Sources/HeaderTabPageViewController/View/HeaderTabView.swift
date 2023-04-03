@@ -7,10 +7,10 @@
 
 import UIKit
 
-public class HeaderTabView: UIView {
+internal class HeaderTabView: UIView {
     private var buttonViews: [HeaderTabButtonItemView] = []
     
-    public weak var delegate: HeaderTabViewDelegate?
+    internal weak var delegate: HeaderTabViewDelegate?
     
     private let scrollView: UIScrollView = {
         let v = UIScrollView()
@@ -54,7 +54,7 @@ public class HeaderTabView: UIView {
     private let headerTabViewBgColor: UIColor
     private let fontSize: CGFloat
     
-    public init(frame: CGRect,
+    internal init(frame: CGRect,
                 labelDefaultColor: UIColor,
                 labelSelectedColor: UIColor,
                 headerTabViewHeight: CGFloat,
@@ -129,7 +129,7 @@ public class HeaderTabView: UIView {
         self.delegate?.itemSelected(index: sender.tag)
     }
     
-    public func move(percent: CGFloat, completion: (() -> ())? = nil) {
+    internal func move(percent: CGFloat, completion: (() -> ())? = nil) {
         self.currentIndicatorIndex = max(0.0, min(1.0, percent)) * CGFloat(buttonViews.count - 1)
         UIView.animate(withDuration: 0.1) { [weak self] in
             self?.setIndicatorViewFrame()
@@ -186,7 +186,7 @@ public class HeaderTabView: UIView {
         indicatorView.frame = CGRect(x: indicatorX, y: headerTabViewHeight - indicatorViewHeight, width: indicatorWidth, height: indicatorViewHeight)
     }
     
-    public override func layoutSubviews() {
+    internal override func layoutSubviews() {
         super.layoutSubviews()
         scrollView.frame = bounds
         separatorView.frame = CGRect(x: 0, y: headerTabViewHeight - 1, width: bounds.width, height: 1)
